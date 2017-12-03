@@ -39,7 +39,6 @@ import org.apache.hadoop.hbase.shaded.org.junit.AfterClass;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -107,6 +106,26 @@ public class HBaseClientIT {
   }
 
   @Test
+  public void testExists() throws Exception { 
+    byte[] rowKey = dataHelper.randomData("putKey-");
+    byte[] qualifier = Bytes.toBytes("qual");
+    byte[] value = dataHelper.randomData("value-");
+
+    // Write the value, and make sure it's written
+    client.put(new PutRequest(TABLE_NAME.getName(), rowKey, FAMILY, qualifier, value));
+    client.flush().join();
+
+    GetRequest request = GetRequest.exists(TABLE_NAME.getName(), rowKey);
+    ArrayList<KeyValue> response = client.get(request).join();
+
+    Assert.assertEquals(1, response.size());
+    KeyValue result = response.get(0);
+
+    Assert.assertTrue(Bytes.equals(rowKey, result.key()));
+    Assert.assertEquals(0, result.value().length);
+  }
+
+  @Test
   public void testAppend() throws Exception {
     byte[] rowKey = dataHelper.randomData("appendKey-");
     byte[] qualifier = dataHelper.randomData("qualifier-");
@@ -134,6 +153,7 @@ public class HBaseClientIT {
     Assert.assertEquals(1, response.size());
     KeyValue result = response.get(0);
 
+    Assert.assertTrue(Bytes.equals(key, result.key()));
     Assert.assertTrue(Bytes.equals(FAMILY, result.family()));
     Assert.assertTrue(Bytes.equals(qual, result.qualifier()));
     Assert.assertTrue(Bytes.equals(val, result.value()));

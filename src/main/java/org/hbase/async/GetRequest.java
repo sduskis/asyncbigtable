@@ -163,7 +163,7 @@ public final class GetRequest extends HBaseRpc
    * @return An {@link HBaseRpc} that will return a {@link Boolean}
    * indicating whether or not the given table / key exists.
    */
-  static HBaseRpc exists(final byte[] table, final byte[] key) {
+  static GetRequest exists(final byte[] table, final byte[] key) {
     return new GetRequest(0F, table, key);
   }
 
@@ -175,7 +175,7 @@ public final class GetRequest extends HBaseRpc
    * @return An {@link HBaseRpc} that will return a {@link Boolean}
    * indicating whether or not the given table / key exists.
    */
-  static HBaseRpc exists(final byte[] table,
+  public static HBaseRpc exists(final byte[] table,
                          final byte[] key, final byte[] family) {
     final GetRequest rpc = new GetRequest(0F, table, key);
     rpc.family(family);
@@ -183,8 +183,12 @@ public final class GetRequest extends HBaseRpc
   }
 
   /** Returns true if this is actually an "Get" RPC. */
-  private boolean isGetRequest() {
+  boolean isGetRequest() {
     return (versions & EXIST_FLAG) == 0;
+  }
+
+  boolean isExistsRequest() {
+    return !isGetRequest();
   }
 
   /**

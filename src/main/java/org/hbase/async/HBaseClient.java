@@ -50,6 +50,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -712,10 +713,14 @@ public final class HBaseClient {
       table = hbase_connection.getTable(TableName.valueOf(request.table()));
       Get get = new Get(request.key());
 
-      if (request.qualifiers() != null) {
-        for (byte[] qualifier : request.qualifiers()) {
-          get.addColumn(request.family(), qualifier);
+      if (request.isGetRequest()) {
+        if (request.qualifiers() != null) {
+          for (byte[] qualifier : request.qualifiers()) {
+            get.addColumn(request.family(), qualifier);
+          }
         }
+      } else { // This is an exists
+        get.setFilter(new KeyOnlyFilter());
       }
 
       Result result = table.get(get);

@@ -40,7 +40,11 @@ public class TestHBaseClient {
    */
   @Test
   public void testConnect() {
-    Configuration conf = BigtableConfiguration.configure("someProjectId", "someInstanceId");
+    Configuration conf = BigtableConfiguration.configure("sduskis-hello-shakespear", "opentsdb-test");
+    
+    conf.set("hbase.client.async.connection.impl", "org.apache.hadoop.hbase.client.BigtableAsyncConnection");
+    conf.set("hbase.client.registry.impl", "org.apache.hadoop.hbase.client.BigtableAsyncRegistry");
+    
     @SuppressWarnings("unused")
     HBaseClient client = new HBaseClient(conf, null);
   }
